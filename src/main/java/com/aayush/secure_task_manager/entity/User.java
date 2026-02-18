@@ -1,7 +1,7 @@
 package com.aayush.secure_task_manager.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,14 +26,17 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @JsonIgnore   // 🔐 hides password from API response
+    // ✅ Accept from request but never return in response
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private String role;
 
-    @JsonManagedReference   // 🔁 prevents infinite recursion
+    // ✅ Prevent infinite recursion
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> tasks;
 }
+

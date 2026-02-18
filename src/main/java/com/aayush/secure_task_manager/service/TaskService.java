@@ -45,4 +45,49 @@ public class TaskService {
 
         return taskRepository.findByUser(user);
     }
+
+    public Task updateTask(Long taskId, Task updatedTask) {
+
+        String email = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Task existingTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        // 🔐 Ensure user owns the task
+        if (!existingTask.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not authorized to update this task");
+        }
+
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setCompleted(updatedTask.isCompleted());
+
+        return taskRepository.save(existingTask);
+    }
+    public void deleteTask(Long taskId) {
+
+        String email = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Task existingTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        // 🔐 Ensure ownership
+        if (!existingTask.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not authorized to delete this task");
+        }
+
+        taskRepository.delete(existingTask);
+    }
+
+
 }
