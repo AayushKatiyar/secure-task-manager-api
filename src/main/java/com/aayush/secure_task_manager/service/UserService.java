@@ -2,7 +2,10 @@ package com.aayush.secure_task_manager.service;
 
 import com.aayush.secure_task_manager.entity.User;
 import com.aayush.secure_task_manager.repository.UserRepository;
+import com.aayush.secure_task_manager.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,6 +13,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public User registerUser(User user) {
 
@@ -17,7 +22,22 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
-        user.setRole("ROLE_USER"); // default role
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("ROLE_USER");
+
         return userRepository.save(user);
     }
+    public String loginUser(String email, String password) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
+
+        return jwtService.generateToken(user.getEmail());
+    }
+
+
 }

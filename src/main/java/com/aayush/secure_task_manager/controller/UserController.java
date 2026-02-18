@@ -1,5 +1,6 @@
 package com.aayush.secure_task_manager.controller;
 
+import com.aayush.secure_task_manager.dto.LoginRequest;
 import com.aayush.secure_task_manager.entity.User;
 import com.aayush.secure_task_manager.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,4 +20,16 @@ public class UserController {
         User savedUser = userService.registerUser(user);
         return ResponseEntity.ok(savedUser);
     }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+
+        String token = userService.loginUser(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(token);
+    }
+    @GetMapping("/test")
+    public String test() {
+        return "Authenticated successfully!";
+    }
+
+
 }
