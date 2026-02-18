@@ -5,8 +5,12 @@ import com.aayush.secure_task_manager.entity.User;
 import com.aayush.secure_task_manager.repository.TaskRepository;
 import com.aayush.secure_task_manager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,7 +38,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public List<Task> getMyTasks() {
+    public Page<Task> getMyTasks(Pageable pageable) {
 
         String email = (String) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -43,7 +47,7 @@ public class TaskService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return taskRepository.findByUser(user);
+        return taskRepository.findByUser(user, pageable);
     }
 
     public Task updateTask(Long taskId, Task updatedTask) {

@@ -3,8 +3,12 @@ package com.aayush.secure_task_manager.controller;
 import com.aayush.secure_task_manager.entity.Task;
 import com.aayush.secure_task_manager.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -17,13 +21,15 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
-        return ResponseEntity.ok(taskService.createTask(task));
+        return ResponseEntity.status(201).body(taskService.createTask(task));
     }
 
+
     @GetMapping
-    public ResponseEntity<List<Task>> getMyTasks() {
-        return ResponseEntity.ok(taskService.getMyTasks());
+    public ResponseEntity<Page<Task>> getMyTasks(Pageable pageable) {
+        return ResponseEntity.ok(taskService.getMyTasks(pageable));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id,
@@ -32,10 +38,11 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
-        return ResponseEntity.ok("Task deleted successfully");
+        return ResponseEntity.noContent().build();
     }
+
 
 }
 
